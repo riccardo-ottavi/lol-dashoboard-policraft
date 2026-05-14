@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import pool from '../db';
-import { getSummonerByRiotId, getRankByPuuid } from '../services/riotService';
+import { getSummonerByRiotId, getRankByPuuid, getMatchIds, getMatchDetail } from '../services/riotService';
 import { RowDataPacket } from 'mysql2';
 
 export const linkSummoner = async (req: Request, res: Response): Promise<void> => {
@@ -56,9 +56,9 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
   const userId = (req as any).user?.id;
 
   try {
-    // 1. Prendi summoner dal DB
+
     const [rows] = await pool.execute<RowDataPacket[]>(
-      'SELECT * FROM summoners WHERE user_id = ?',
+      'SELECT * FROM summoners WHERE user_id = ? LIMIT 1',
       [userId]
     );
 
@@ -79,12 +79,12 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
 
       rank = rankData
         ? {
-            tier: rankData.tier,
-            rank: rankData.rank,
-            leaguePoints: rankData.leaguePoints,
-            wins: rankData.wins,
-            losses: rankData.losses,
-          }
+          tier: rankData.tier,
+          rank: rankData.rank,
+          leaguePoints: rankData.leaguePoints,
+          wins: rankData.wins,
+          losses: rankData.losses,
+        }
         : null;
 
       // aggiorna DB
@@ -104,10 +104,12 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
       console.error('Rank fetch failed:', err);
     }
 
-    // 3. Matches (per ora mock, poi li aggiungiamo)
-    const matches: any[] = [];
+    const matchIds = await getMatchIds(summoner.puuid, summoner.region, 10);
 
-    // 4. Risposta finale (IMPORTANTE: formato giusto)
+    const matches = await Promise.all(
+      matchIds.map((id: string) => getMatchDetail(id, summoner.region))
+    );
+
     res.json({
       summoner,
       rank,
@@ -124,7 +126,7 @@ export const getMySummoner = async (req: Request, res: Response): Promise<void> 
   const userId = (req as any).user?.id;
 
   const [rows] = await pool.execute<RowDataPacket[]>(
-    'SELECT * FROM summoners WHERE user_id = ?',
+    'SELECT * FROM summoners WHERE user_id = ? LIMIT 1',
     [userId]
   );
 
