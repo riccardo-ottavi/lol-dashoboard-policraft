@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { REGIONS } from '../types/constants';
 
-const REGIONS = ['euw', 'na', 'kr', 'eun', 'br', 'jp', 'tr', 'ru', 'la1', 'la2'];
 
 const Onboarding = () => {
   const { token, loading } = useAuth();
@@ -55,28 +55,27 @@ const Onboarding = () => {
     }
   };
 
-
   return (
-    <div style={{ padding: '48px 32px', maxWidth: 480, margin: '0 auto' }}>
+    <div className='onboarding-container'>
       <h1>Collega il tuo account</h1>
-      <p style={{ color: '#888', margin: '8px 0 32px' }}>
+      <p className='onboarding-subtitle'>
         Inserisci il tuo Riot ID per iniziare.
       </p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div className='onboarding-form-container'>
         <input
+          className='onboarding-name-input'
           type="text"
-          placeholder="Nome#TAG (es. MaryahCarry#EUW)"
+          placeholder="Nome#TAG (es. Paolocannone22#EUW)"
           value={riotId}
           onChange={e => setRiotId(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleLink()}
-          style={{ padding: '10px 14px', borderRadius: 8, border: '1px solid #ccc', fontSize: 15 }}
         />
 
         <select
+          className='onboarding-region-select'
           value={region}
           onChange={e => setRegion(e.target.value)}
-          style={{ padding: '10px 14px', borderRadius: 8, border: '1px solid #ccc', fontSize: 14 }}
         >
           {REGIONS.map(r => (
             <option key={r} value={r}>{r.toUpperCase()}</option>
@@ -84,24 +83,14 @@ const Onboarding = () => {
         </select>
 
         <button
+          className='onboarding-button'
           onClick={handleLink}
           disabled={loading || submitting || !riotId}
-          style={{
-            padding: '12px',
-            borderRadius: 8,
-            background: '#5865F2',
-            color: '#fff',
-            border: 'none',
-            fontWeight: 600,
-            fontSize: 15,
-            cursor: loading || submitting || !riotId ? 'not-allowed' : 'pointer',
-          }}
-        >
+          style={{cursor: loading || submitting || !riotId ? 'not-allowed' : 'pointer'}}>
           {loading || submitting ? 'Collegamento...' : 'Collega account →'}
         </button>
-
         {error && (
-          <p style={{ color: '#ef4444', fontSize: 13 }}>{error}</p>
+          <p className='submit-error-message'>{error}</p>
         )}
       </div>
     </div>

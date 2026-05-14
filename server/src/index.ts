@@ -21,12 +21,10 @@ initDiscordStrategy();
 app.use('/auth', auth);
 app.use('/summoners', summoners);
 
-// aggiungi subito dopo
 app.get('/test', (req, res) => {
   res.json({ ok: true });
 });
 
-// e questo per catturare tutto ciò che non trova rotta
 app.use((req, res) => {
   console.log('404 - rotta non trovata:', req.method, req.url);
   res.status(404).json({ error: 'Not found', path: req.url });

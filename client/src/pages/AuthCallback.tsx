@@ -21,7 +21,6 @@ const AuthCallback = () => {
 
     localStorage.setItem('token', token);
 
-    // Controlla se ha già un summoner
     fetch('http://localhost:3001/summoners/me', {
       headers: { Authorization: `Bearer ${token}` },
     })

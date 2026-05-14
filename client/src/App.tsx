@@ -3,6 +3,8 @@ import { useAuth } from './contexts/AuthContext';
 import AuthCallback from './pages/AuthCallback';
 import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
+import Group from './pages/Group';
+import './App.css'
 
 const Login = () => (
   <div style={{ padding: '48px 32px' }}>
@@ -33,6 +35,11 @@ const App = () => {
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <Dashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/group" element={
+        <ProtectedRoute>
+          <Group />
         </ProtectedRoute>
       } />
       <Route path="*" element={<Navigate to="/" replace />} />

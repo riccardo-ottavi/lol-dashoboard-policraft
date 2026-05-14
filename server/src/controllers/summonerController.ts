@@ -71,7 +71,6 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
 
     const summoner = rows[0];
 
-    // 2. Aggiorna rank live (opzionale ma consigliato)
     let rank = null;
 
     try {
@@ -87,7 +86,6 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
         }
         : null;
 
-      // aggiorna DB
       await pool.execute(
         `UPDATE summoners 
          SET tier = ?, rank_division = ?, lp = ?, last_synced_at = NOW()
@@ -136,4 +134,33 @@ export const getMySummoner = async (req: Request, res: Response): Promise<void> 
   }
 
   res.json(rows[0]);
+};
+
+export const getGroupDashboard = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const [rows] = await pool.execute<RowDataPacket[]>(
+      `SELECT 
+        u.username as discord_username,
+        u.avatar,
+        u.discord_id,
+        s.id,
+        s.summoner_name,
+        s.region,
+        s.tier,
+        s.rank_division,
+        s.lp,
+        s.puuid,
+        s.last_synced_at
+       FROM summoners s
+       JOIN users u ON s.user_id = u.id
+       ORDER BY 
+         FIELD(s.tier, 'CHALLENGER', 'GRANDMASTER', 'MASTER', 'DIAMOND', 'EMERALD', 'PLATINUM', 'GOLD', 'SILVER', 'BRONZE', 'IRON') ASC,
+         s.lp DESC`
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error('getGroupDashboard error:', err);
+    res.status(500).json({ error: 'Errore recupero gruppo' });
+  }
 };
