@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import AuthCallback from './pages/AuthCallback';
 import Onboarding from './pages/Onboarding';
+import Dashboard from './pages/Dashboard';
 
 const Login = () => (
   <div style={{ padding: '48px 32px' }}>
@@ -11,16 +12,6 @@ const Login = () => (
     </a>
   </div>
 );
-
-const Dashboard = () => {
-  const { user, logout } = useAuth();
-  return (
-    <div style={{ padding: '32px' }}>
-      <h1>Benvenuto, {user?.username}</h1>
-      <button onClick={logout}>Logout</button>
-    </div>
-  );
-};
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -44,6 +35,7 @@ const App = () => {
           <Dashboard />
         </ProtectedRoute>
       } />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };

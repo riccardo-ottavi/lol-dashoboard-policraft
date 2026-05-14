@@ -2,9 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import passport from 'passport';
-import authRoutes from './routes/auth';
+import auth from './routes/auth';
 import { initDiscordStrategy } from './auth/discordStrategy';
-import summonerRoutes from './routes/summoners';
+import summoners from './routes/summoners';
 
 
 dotenv.config();
@@ -18,8 +18,19 @@ app.use(passport.initialize());
 
 initDiscordStrategy();  
 
-app.use('/auth', authRoutes);
-app.use('/summoners', summonerRoutes);
+app.use('/auth', auth);
+app.use('/summoners', summoners);
+
+// aggiungi subito dopo
+app.get('/test', (req, res) => {
+  res.json({ ok: true });
+});
+
+// e questo per catturare tutto ciò che non trova rotta
+app.use((req, res) => {
+  console.log('404 - rotta non trovata:', req.method, req.url);
+  res.status(404).json({ error: 'Not found', path: req.url });
+});
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', project: 'lol-dashboard-policraft' });

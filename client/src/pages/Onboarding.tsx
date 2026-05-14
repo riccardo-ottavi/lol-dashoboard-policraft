@@ -1,16 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const REGIONS = ['euw', 'na', 'kr', 'eun', 'br', 'jp', 'tr', 'ru', 'la1', 'la2'];
 
 const Onboarding = () => {
-  const { token } = useAuth();
+  const { token, loading } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !token) {
+      navigate('/');
+    }
+  }, [token, loading, navigate]);
 
   const [riotId, setRiotId] = useState('');
   const [region, setRegion] = useState('euw');
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleLink = async () => {
@@ -20,7 +26,7 @@ const Onboarding = () => {
     }
 
     setError(null);
-    setLoading(true);
+    setSubmitting(true);
 
     try {
       const res = await fetch('http://localhost:3001/summoners/link', {
@@ -33,6 +39,8 @@ const Onboarding = () => {
       });
 
       const data = await res.json();
+      console.log('status:', res.status);
+      console.log('data:', data);
 
       if (!res.ok) {
         setError(data.error || 'Errore collegamento');
@@ -43,9 +51,10 @@ const Onboarding = () => {
     } catch {
       setError('Errore di rete. Riprova.');
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
+
 
   return (
     <div style={{ padding: '48px 32px', maxWidth: 480, margin: '0 auto' }}>
@@ -76,7 +85,7 @@ const Onboarding = () => {
 
         <button
           onClick={handleLink}
-          disabled={loading || !riotId}
+          disabled={loading || submitting || !riotId}
           style={{
             padding: '12px',
             borderRadius: 8,
@@ -85,10 +94,10 @@ const Onboarding = () => {
             border: 'none',
             fontWeight: 600,
             fontSize: 15,
-            cursor: loading || !riotId ? 'not-allowed' : 'pointer',
+            cursor: loading || submitting || !riotId ? 'not-allowed' : 'pointer',
           }}
         >
-          {loading ? 'Collegamento...' : 'Collega account →'}
+          {loading || submitting ? 'Collegamento...' : 'Collega account →'}
         </button>
 
         {error && (

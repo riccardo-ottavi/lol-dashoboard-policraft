@@ -25,15 +25,25 @@ const AuthCallback = () => {
     fetch('http://localhost:3001/summoners/me', {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then(res => {
+      .then(async res => {
         if (res.status === 404) {
           navigate('/onboarding');
-        } else {
-          navigate('/dashboard');
+          return;
         }
+
+        if (!res.ok) {
+          console.error('Auth callback fetch failed:', res.status);
+          navigate('/');
+          return;
+        }
+
+        navigate('/dashboard');
       })
-      .catch(() => navigate('/onboarding'));
-  }, []);
+      .catch(err => {
+        console.error('Auth callback error:', err);
+        navigate('/onboarding');
+      });
+  }, [navigate]);
 
   return <p>Accesso in corso...</p>;
 };

@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from 'react';
 
 interface User {
   id: string;
@@ -22,22 +28,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem('token');
-    if (stored) {
+    const initAuth = () => {
       try {
+        const stored = localStorage.getItem('token');
+
+        if (!stored) {
+          setUser(null);
+          setToken(null);
+          setLoading(false);
+          return;
+        }
+
         const payload = JSON.parse(atob(stored.split('.')[1]));
+
+        if (!payload?.id) {
+          throw new Error('Invalid token payload');
+        }
+
         setToken(stored);
         setUser({
           id: payload.id,
           discord_id: payload.discord_id,
           username: payload.username,
-          avatar: payload.avatar,
+          avatar: payload.avatar ?? null,
         });
-      } catch {
+      } catch (err) {
+        console.error('Auth error:', err);
         localStorage.removeItem('token');
+        setUser(null);
+        setToken(null);
+      } finally {
+        setLoading(false);
       }
-    }
-    setLoading(false);
+    };
+
+    initAuth();
   }, []);
 
   const logout = () => {

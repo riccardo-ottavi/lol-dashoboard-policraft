@@ -52,6 +52,74 @@ export const linkSummoner = async (req: Request, res: Response): Promise<void> =
   }
 };
 
+export const getProfile = async (req: Request, res: Response): Promise<void> => {
+  const userId = (req as any).user?.id;
+
+  try {
+    // 1. Prendi summoner dal DB
+    const [rows] = await pool.execute<RowDataPacket[]>(
+      'SELECT * FROM summoners WHERE user_id = ?',
+      [userId]
+    );
+
+    console.log('rows trovate:', rows);
+
+    if (!rows.length) {
+      res.status(404).json({ error: 'Nessun summoner collegato' });
+      return;
+    }
+
+    const summoner = rows[0];
+
+    // 2. Aggiorna rank live (opzionale ma consigliato)
+    let rank = null;
+
+    try {
+      const rankData = await getRankByPuuid(summoner.puuid, summoner.region);
+
+      rank = rankData
+        ? {
+            tier: rankData.tier,
+            rank: rankData.rank,
+            leaguePoints: rankData.leaguePoints,
+            wins: rankData.wins,
+            losses: rankData.losses,
+          }
+        : null;
+
+      // aggiorna DB
+      await pool.execute(
+        `UPDATE summoners 
+         SET tier = ?, rank_division = ?, lp = ?, last_synced_at = NOW()
+         WHERE id = ?`,
+        [
+          rank?.tier ?? null,
+          rank?.rank ?? null,
+          rank?.leaguePoints ?? 0,
+          summoner.id,
+        ]
+      );
+
+    } catch (err) {
+      console.error('Rank fetch failed:', err);
+    }
+
+    // 3. Matches (per ora mock, poi li aggiungiamo)
+    const matches: any[] = [];
+
+    // 4. Risposta finale (IMPORTANTE: formato giusto)
+    res.json({
+      summoner,
+      rank,
+      matches,
+    });
+
+  } catch (err) {
+    console.error('getProfile error:', err);
+    res.status(500).json({ error: 'Errore recupero profilo' });
+  }
+};
+
 export const getMySummoner = async (req: Request, res: Response): Promise<void> => {
   const userId = (req as any).user?.id;
 
