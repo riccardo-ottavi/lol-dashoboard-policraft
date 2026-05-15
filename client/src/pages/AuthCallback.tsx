@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const AuthCallback = () => {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ const AuthCallback = () => {
       return;
     }
 
-    fetch('http://localhost:3001/summoners/me', {
+    fetch(`${BASE_URL}/summoners/me`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async res => {

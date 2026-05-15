@@ -6,32 +6,27 @@ import auth from './routes/auth';
 import { initDiscordStrategy } from './auth/discordStrategy';
 import summoners from './routes/summoners';
 
-
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors({ origin: CLIENT_URL, credentials: true }));
 app.use(express.json());
 app.use(passport.initialize());
 
-initDiscordStrategy();  
+initDiscordStrategy();
 
 app.use('/auth', auth);
 app.use('/summoners', summoners);
 
-app.get('/test', (req, res) => {
-  res.json({ ok: true });
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', project: 'lol-dashboard-policraft' });
 });
 
 app.use((req, res) => {
-  console.log('404 - rotta non trovata:', req.method, req.url);
   res.status(404).json({ error: 'Not found', path: req.url });
-});
-
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', project: 'lol-dashboard-policraft' });
 });
 
 app.listen(PORT, () => {

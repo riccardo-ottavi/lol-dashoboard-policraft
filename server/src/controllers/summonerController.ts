@@ -62,8 +62,6 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
       [userId]
     );
 
-    console.log('rows trovate:', rows);
-
     if (!rows.length) {
       res.status(404).json({ error: 'Nessun summoner collegato' });
       return;

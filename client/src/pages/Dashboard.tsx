@@ -34,6 +34,15 @@ const Dashboard = () => {
         setSummoner(data.summoner);
         setRank(data.rank);
         setMatches(data.matches);
+        console.log("SUMMONER PUUID:", data.summoner.puuid);
+console.log("MATCHES:", data.matches);
+
+const p = data.matches[0]?.info.participants.find(
+  (x: Participant) => x.puuid === data.summoner.puuid
+);
+
+console.log("PARTICIPANT TROVATO:", p);
+console.log("PROFILE ICON:", p?.profileIcon);
 
         if (data.matches.length > 0) {
           const p = data.matches[0].info.participants.find(

@@ -5,11 +5,11 @@ import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
 import Group from './pages/Group';
 import './App.css'
-
+const BASE_URL = import.meta.env.VITE_API_URL;
 const Login = () => (
   <div style={{ padding: '48px 32px' }}>
     <h1>lol-dashboard-policraft</h1>
-    <a href="http://localhost:3001/auth/discord">
+    <a href={`${BASE_URL}/auth/discord`}>
       <button>Accedi con Discord</button>
     </a>
   </div>
