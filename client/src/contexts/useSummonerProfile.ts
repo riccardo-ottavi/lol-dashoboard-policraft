@@ -1,32 +1,16 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { api } from '../services/api';
 
 export const useSummonerProfile = () => {
-  const { token } = useAuth();
-
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!token) return;
-
-    const fetchProfile = async () => {
-      try {
-        const res = await fetch('http://localhost:3001/summoners/profile', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const json = await res.json();
-        setData(json);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, [token]);
+    api.get('/summoners/profile')
+      .then(json => setData(json))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
 
   return { data, loading };
 };

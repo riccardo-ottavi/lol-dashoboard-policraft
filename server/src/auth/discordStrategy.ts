@@ -17,7 +17,9 @@ export const initDiscordStrategy = () => {
       );
 
       if (!res.ok) {
+        console.warn(`Accesso negato: utente ${profile.username} non è nel server Discord.`);
         return done(null, false);
+
       }
 
       await pool.execute(

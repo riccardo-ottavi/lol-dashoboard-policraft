@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { REGIONS } from '../types/constants';
+import { api } from '../services/api';
 
 
 const Onboarding = () => {
@@ -20,40 +21,29 @@ const Onboarding = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleLink = async () => {
-    if (!riotId.includes('#')) {
-      setError('Formato richiesto: Nome#TAG (es. MaryahCarry#EUW)');
+  if (!riotId.includes('#')) {
+    setError('Formato richiesto: Nome#TAG (es. Paolocannone22#EUW)');
+    return;
+  }
+
+  setError(null);
+  setSubmitting(true);
+
+  try {
+    const data = await api.post('/summoners/link', { riot_id: riotId, region });
+
+    if (data.error) {
+      setError(data.error);
       return;
     }
 
-    setError(null);
-    setSubmitting(true);
-
-    try {
-      const res = await fetch('http://localhost:3001/summoners/link', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ riot_id: riotId, region }),
-      });
-
-      const data = await res.json();
-      console.log('status:', res.status);
-      console.log('data:', data);
-
-      if (!res.ok) {
-        setError(data.error || 'Errore collegamento');
-        return;
-      }
-
-      navigate('/dashboard');
-    } catch {
-      setError('Errore di rete. Riprova.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+    navigate('/dashboard');
+  } catch {
+    setError('Errore di rete. Riprova.');
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   return (
     <div className='onboarding-container'>

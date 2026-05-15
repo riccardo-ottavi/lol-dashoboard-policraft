@@ -21,6 +21,17 @@ const AuthCallback = () => {
 
     localStorage.setItem('token', token);
 
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.exp * 1000 < Date.now()) {
+        navigate('/');
+        return;
+      }
+    } catch {
+      navigate('/');
+      return;
+    }
+
     fetch('http://localhost:3001/summoners/me', {
       headers: { Authorization: `Bearer ${token}` },
     })

@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { TIER_COLORS } from '../types/constants';
 import type { Member } from '../types/summoner';
+import { api } from '../services/api';
 
 const discordAvatarUrl = (discordId: string, avatar: string) =>
     `https://cdn.discordapp.com/avatars/${discordId}/${avatar}.png`;
 
 const Group = () => {
-    const { token } = useAuth();
+
     const navigate = useNavigate();
 
     const [members, setMembers] = useState<Member[]>([]);
@@ -17,10 +17,7 @@ const Group = () => {
     useEffect(() => {
         const fetchGroup = async () => {
             try {
-                const res = await fetch('http://localhost:3001/summoners/group', {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                const data = await res.json();
+                const data = await api.get('/summoners/group');
                 setMembers(data);
             } catch (err) {
                 console.error(err);

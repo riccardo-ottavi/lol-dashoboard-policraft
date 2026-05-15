@@ -6,6 +6,7 @@ import type { Rank } from '../types/summoner';
 import type { Participant, Match } from '../types/match';
 import { TIER_COLORS } from '../types/constants'
 import MatchCard from '../components/MatchCard';
+import { api } from '../services/api';
 
 const profileIconUrl = (id: number) =>
   `https://ddragon.leagueoflegends.com/cdn/15.8.1/img/profileicon/${id}.png`;
@@ -23,16 +24,13 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch('http://localhost:3001/summoners/profile', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const data = await api.get('/summoners/profile');
 
-        if (res.status === 404) {
+        if (data.error === 'Nessun summoner collegato') {
           navigate('/onboarding');
           return;
         }
 
-        const data = await res.json();
         setSummoner(data.summoner);
         setRank(data.rank);
         setMatches(data.matches);
@@ -98,10 +96,10 @@ const Dashboard = () => {
                 className='dashboard-big-profile-pic'
                 src={profileIconUrl(profileIconId)}
                 alt="icon"
-                style={{border: `3px solid ${tierColor}44` }}
+                style={{ border: `3px solid ${tierColor}44` }}
               />
             ) : (
-              <div className='dashboard-big-profile-pic' style={{background: 'rgba(255,255,255,0.05)' }} />
+              <div className='dashboard-big-profile-pic' style={{ background: 'rgba(255,255,255,0.05)' }} />
             )}
 
             <div style={{ flex: 1 }}>
